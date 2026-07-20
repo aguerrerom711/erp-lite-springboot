@@ -1,0 +1,73 @@
+#version: '3.9'
+
+services:
+  postgres:
+    image: postgres:17
+    container_name: erp-postgres
+    environment:
+      POSTGRES_USER: erp_user
+      POSTGRES_PASSWORD: erp_password
+      POSTGRES_DB: erp_db
+    ports:
+      - "5432:5432"
+    volumes:
+      - ./db/postgresql:/docker-entrypoint-initdb.d
+    networks:
+      - erp-vpc
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U erp_user -d erp_db"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+  mongodb:
+    image: mongo:8
+    container_name: erp-mongodb
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: erp_user
+      MONGO_INITDB_ROOT_PASSWORD: erp_password
+      MONGO_INITDB_DATABASE: erp_catalog_db
+    ports:
+      - "27017:27017"
+    volumes:
+      - ./db/mongodb:/docker-entrypoint-initdb.d
+    networks:
+      - erp-vpc
+    healthcheck:
+      test: ["CMD", "mongosh", "--eval", "db.adminCommand('ping')", "-u", "erp_user", "-p", "erp_password", "--authenticationDatabase", "admin", "--quiet"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 20s
+  redis:
+    image: redis:7
+    container_name: erp-redis
+    command: redis-server --requirepass secret --maxmemory 256mb --maxmemory-policy allkeys-lru
+    ports:
+      - "6379:6379"
+    networks:
+      - erp-vpc
+    healthcheck:
+      test: ["CMD", "redis-cli", "-a", "secret", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 10s
+
+  redis-commander:
+    image: rediscommander/redis-commander:latest
+    restart: always
+    container_name: redis-ui
+    environment:
+      - REDIS_HOSTS=local:redis:6379:0:secret
+      - HTTP_USER=andresadmin    
+      - HTTP_PASSWORD=secret
+    ports:
+      - "8081:8081"
+    depends_on:
+      - redis
+    networks:
+      - erp-vpc
+networks:
+  erp-vpc:
+    driver: bridge
+  
