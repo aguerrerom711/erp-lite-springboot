@@ -1,0 +1,69 @@
+spring:
+    application:
+        name: erp-api
+
+    #postgresql
+    datasource:
+        url: jdbc:postgresql://localhost:5432/erp_db
+        username: erp_user
+        password: erp_password
+        driver-class-name: org.postgresql.Driver
+        hikari:
+            maximum-pool-size: 10
+            minimum-idle: 5
+
+    #JPA / Hibernate
+    jpa:
+        hibernate:
+            ddl-auto: validate
+        show-sql: ${JPA_SHOW_SQL:true}
+        open-in-view: false
+        properties:
+            hibernate:
+                dialect: org.hibernate.dialect.PostgreSQLDialect
+                format_sql: ${HIBERNATE_FORMAT_SQL:true}
+                use_sql_comments: ${HIBERNATE_USE_SQL_COMMENTS:true}
+
+    #mongodb
+    data:
+        mongodb:
+            auto-index-creation: true
+
+        #redis
+        redis:
+            host: localhost
+            port: 6379
+            password: secret
+            timeout: 2000ms
+            lettuce:
+                pool:
+                    max-active: 8
+                    max-idle: 8
+                    min-idle: 0
+        
+    mongodb:
+        uri: mongodb://erp_user:erp_password@localhost:27017/erp_catalog_db?authSource=admin
+    
+    web:
+        error:
+            include-message: ${ERROR_INCLUDE_MESSAGE:always}
+            include-binding-errors: ${ERROR_INCLUDE_BINDING_ERRORS:always}
+            include-stacktrace: ${ERROR_INCLUDE_STACKTRACE:always}
+            
+#server
+server:
+    port: 9090
+
+
+#logging:
+logging:
+    level:
+        root: ${LOGGING_LEVEL_ROOT:INFO}
+        com.erp: ${LOGGING_LEVEL_ERP:DEBUG}
+        '[org.springframework.web]': ${LOGGING_LEVEL_WEB:DEBUG}
+        '[org.springframework.data]': ${LOGGING_LEVEL_DATA:DEBUG}
+        '[org.hibernate.SQL]': ${LOGGING_LEVEL_HIBERNATE_SQL:DEBUG}
+        '[org.hibernate.type.descriptor.sql.BasicBinder]': ${LOG_LEVEL_SQL_PARAMS:TRACE}
+        '[org.springframework.boot.mongodb]': ${LOGGING_LEVEL_MONGODB:DEBUG}
+        
+        
