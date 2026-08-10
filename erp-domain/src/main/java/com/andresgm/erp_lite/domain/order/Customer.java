@@ -1,0 +1,19 @@
+package com.andresgm.erp_lite.domain.order;
+
+import com.andresgm.erp_lite.domain.shared.CustomerId;
+
+public record Customer(CustomerId customerId, String customerName) {
+
+    public Customer {
+        if (customerId == null) {
+            throw new IllegalArgumentException("Customer customerId must not be null");
+        }
+        if (customerName == null || customerName.isBlank()) {
+            throw new IllegalArgumentException("Customer customerName must not be null or blank");
+        }
+    }
+
+    public static Customer of(CustomerId customerId, String customerName) {
+        return new Customer(customerId, customerName);
+    }
+}
